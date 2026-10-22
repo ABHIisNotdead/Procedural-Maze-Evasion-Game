@@ -16,18 +16,33 @@ import javax.swing.InputMap;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
 
+import java.awt.Image;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+
 public class GameWindow extends JPanel implements ActionListener {
 
     private final int TILE_SIZE = 32;
     private final int COLS = 20;
     private final int ROWS = 15;
 
+    private static final int PLAYER_SIZE = 24;
+
     //here 1 = wall , 0 = path (this is my Dummy matrix untill member 1 delivers the map generation script)
     private int[][] map = new int[ROWS][COLS];
 
     // players co-odinat (Grid based)
-    private int playerCol = 1;
-    private int playerRow = 1;
+    private int playerX = TILE_SIZE + 4;
+    private int playerY = TILE_SIZE + 4;
+    private int speed = 6;
+
+    private boolean up, down, left, right;
+
+    //wall , path, player images
+    private Image wallSprite;
+    private Image pathSprite;
+    private Image playerSprite;
 
     // the Game timer runs every this
     private Timer gameLoop;
@@ -42,9 +57,22 @@ public class GameWindow extends JPanel implements ActionListener {
         generateDummyMatrix();
         setupKeyBindings();
 
+        loadImages();
+
         //starting game loop the timer around 60 FPS (16ms)
         gameLoop = new Timer(16, this);
         gameLoop.start();
+    }
+
+    private void loadImages(){
+        try{
+            wallSprite = ImageIO.read(new File("assets/wall.png"));
+            pathSprite = ImageIO.read(new File("assets/path.png"));
+            playerSprite = ImageIO.read(new File("assets/player.png"));
+        } catch (IOException e) {
+            System.out.println("ERROR loading images");
+            e.printStackTrace();
+        }
     }
 
     private void generateDummyMatrix(){
@@ -66,38 +94,77 @@ public class GameWindow extends JPanel implements ActionListener {
         InputMap im = this.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW);
         ActionMap am = this.getActionMap();
 
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_W,0),"moveUP");
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_S,0),"moveDown");
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A,0),"moveLeft");
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_D,0),"moveRight");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_W,0, false),"W_Pressed");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_S,0, false),"S_Pressed");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A,0, false),"A_Pressed");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_D,0, false),"D_Pressed");
 
-        am.put("moveUP", new MoveAction(0,-1));
-        am.put("moveDown", new MoveAction(0,1));
-        am.put("moveLeft", new MoveAction(-1,0));
-        am.put("moveRight", new MoveAction(1,0));
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_W,0, true),"W_Released");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_S,0, true),"S_Released");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A,0, true),"A_Released");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_D,0, true),"D_Released");
+
+        am.put("W_Pressed", new KeyAction("W",true));
+        am.put("S_Pressed", new KeyAction("S",true));
+        am.put("A_Pressed", new KeyAction("A",true));
+        am.put("D_Pressed", new KeyAction("D",true));
+
+        am.put("W_Released", new KeyAction("W",false));
+        am.put("S_Released", new KeyAction("S",false));
+        am.put("A_Released", new KeyAction("A",false));
+        am.put("D_Released", new KeyAction("D",false));
+
 
     }
 
-    private class MoveAction extends AbstractAction {
-        int dCol, dRow;
-        MoveAction(int dCol, int dRow){
-            this.dCol = dCol;
-            this.dRow = dRow;
+    private class KeyAction extends AbstractAction{
+        String key;
+        boolean state;
+
+        KeyAction(String key, boolean state){
+            this.key = key;
+            this.state = state;
         }
         @Override
-        public void actionPerformed(ActionEvent e) {
-            int nextCol = playerCol + dCol;
-            int nextRow = playerRow + dRow;
-
-            if (map[nextRow][nextCol] == 0){
-                playerCol = nextCol;
-                playerRow = nextRow;
-            }
+        public void actionPerformed(ActionEvent e){
+            if (key.equals("W")) up = state;
+            if (key.equals("S")) down = state;
+            if (key.equals("A")) left = state;
+            if (key.equals("D")) right = state;
         }
+    }
+
+    private boolean canMove(int nextX, int nextY){
+        int leftCol = nextX / TILE_SIZE;
+        int rightCol = (nextX + PLAYER_SIZE - 1 ) / TILE_SIZE;
+        int topRow = nextY / TILE_SIZE;
+        int bottomRow = (nextY + PLAYER_SIZE - 1)/ TILE_SIZE;
+
+        if(map[topRow][leftCol] == 1) return false;
+        if(map[topRow][rightCol] == 1) return false;
+        if(map[bottomRow][leftCol] == 1) return false;
+        if(map[bottomRow][rightCol] == 1) return false;
+
+        return true;
+
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        int dx = 0, dy = 0;
+
+        if (up) dy -= speed;
+        if (down) dy += speed;
+        if (left) dx -= speed;
+        if (right) dx += speed;
+
+        //check x and y axis independently to allow sliding on walls
+        if(canMove(playerX + dx, playerY)) {
+            playerX += dx;
+        }
+        if (canMove(playerX, playerY + dy)) {
+            playerY += dy;
+        }
         repaint();
     }
 
@@ -110,15 +177,16 @@ public class GameWindow extends JPanel implements ActionListener {
         //dummy code
         for(int r = 0; r < ROWS; r++){
             for (int c = 0; c < COLS; c++){
-                if (map[r][c] == 1){
-                    g2.setColor(Color.DARK_GRAY);
-                    g2.fillRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                if (map[r][c] == 1) {
+                    g2.drawImage(wallSprite, c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE, null);
+                }else{
+                    g2.drawImage(pathSprite,c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE, null);
 
                 }
             }
         }
-        g2.setColor(Color.GREEN);
-        g2.fillOval(playerCol * TILE_SIZE, playerRow * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+
+        g2.drawImage(playerSprite,playerX, playerY, PLAYER_SIZE,PLAYER_SIZE, null);
 
 
 
