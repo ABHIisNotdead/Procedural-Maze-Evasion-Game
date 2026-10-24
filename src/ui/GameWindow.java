@@ -31,8 +31,8 @@ public class GameWindow extends JPanel implements ActionListener {
     private static final int SCREEN_WIDTH = 640;
     private static final int SCREEN_HEIGHT = 480;
 
-    private final int COLS = 50;
-    private final int ROWS = 50;
+    private final int COLS = 20;
+    private final int ROWS = 20;
 
     private static final int PLAYER_SIZE = 42;
 
@@ -63,6 +63,9 @@ public class GameWindow extends JPanel implements ActionListener {
 
     // the Game timer runs every this
     private Timer gameLoop;
+
+    private int enemyX = TILE_SIZE * 8;
+    private int enemyY = TILE_SIZE * 8;
 
     public GameWindow() {
         this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
@@ -183,6 +186,10 @@ public class GameWindow extends JPanel implements ActionListener {
         return true;
 
     }
+    private void updateChaser() {
+        // Member 2's BFS queue logic goes here to calculate the shortest path
+        // Update enemyX and enemyY based on their algorithm
+    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -213,6 +220,9 @@ public class GameWindow extends JPanel implements ActionListener {
         }else {
             spriteNum = 0; // restes to standing still if no keys are pressed
         }
+
+        updateChaser();
+
         repaint();
     }
 
@@ -237,6 +247,9 @@ public class GameWindow extends JPanel implements ActionListener {
                 }
             }
         }
+        // Draw Enemy (Placeholder)
+        g2.setColor(Color.RED);
+        g2.fillRect(enemyX, enemyY, PLAYER_SIZE, PLAYER_SIZE);
         // Determine which sprite frame to draw
         BufferedImage currentFrame = null;
         switch(direction) {
@@ -251,7 +264,6 @@ public class GameWindow extends JPanel implements ActionListener {
             g2.drawImage(currentFrame, playerX, playerY, PLAYER_SIZE, PLAYER_SIZE, null);
 
         }
-
         g2.dispose();
     }
 }
