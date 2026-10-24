@@ -67,6 +67,7 @@ public class GameWindow extends JPanel implements ActionListener {
 
     private int enemyX = TILE_SIZE * 8;
     private int enemyY = TILE_SIZE * 8;
+    // ------------code for chaserAI -------------------------
     private int targetX = enemyX;
     private int targetY = enemyY;
 
@@ -76,6 +77,7 @@ public class GameWindow extends JPanel implements ActionListener {
     private ChaserAI chaserAI = new ChaserAI(5);
     private long lastChaserMove = 0;
     private final int chaserDelay = 300;
+    // -------------- end of code for chaserAI --------------------
 
     public GameWindow() {
         this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
