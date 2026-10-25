@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import logic.ChaserAI;
 
 public class GameWindow extends JPanel implements ActionListener {
 
@@ -66,6 +67,17 @@ public class GameWindow extends JPanel implements ActionListener {
 
     private int enemyX = TILE_SIZE * 8;
     private int enemyY = TILE_SIZE * 8;
+    // ------------code for chaserAI -------------------------
+    private int targetX = enemyX;
+    private int targetY = enemyY;
+
+    private final int chaserSpeed = 3;
+    private boolean chaserMoving = false;
+
+    private ChaserAI chaserAI = new ChaserAI(5);
+    private long lastChaserMove = 0;
+    private final int chaserDelay = 300;
+    // -------------- end of code for chaserAI --------------------
 
     public GameWindow() {
         this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
@@ -187,10 +199,60 @@ public class GameWindow extends JPanel implements ActionListener {
 
     }
     private void updateChaser() {
-        // Member 2's BFS queue logic goes here to calculate the shortest path
-        // Update enemyX and enemyY based on their algorithm
-    }
 
+        // Move smoothly toward the current target tile
+        if (chaserMoving) {
+
+            if (enemyX < targetX) {
+                enemyX = Math.min(enemyX + chaserSpeed, targetX);
+            } else if (enemyX > targetX) {
+                enemyX = Math.max(enemyX - chaserSpeed, targetX);
+            }
+
+            if (enemyY < targetY) {
+                enemyY = Math.min(enemyY + chaserSpeed, targetY);
+            } else if (enemyY > targetY) {
+                enemyY = Math.max(enemyY - chaserSpeed, targetY);
+            }
+
+            // Stop when the target tile is reached
+            if (enemyX == targetX && enemyY == targetY) {
+                chaserMoving = false;
+            }
+
+            return;
+        }
+
+        // Choose the next tile only when not moving
+        long now = System.currentTimeMillis();
+
+        if (now - lastChaserMove < chaserDelay) {
+            return;
+        }
+
+        int chaserGridX = enemyX / TILE_SIZE;
+        int chaserGridY = enemyY / TILE_SIZE;
+
+        int playerGridX =
+                (playerX + PLAYER_SIZE / 2) / TILE_SIZE;
+
+        int playerGridY =
+                (playerY + PLAYER_SIZE / 2) / TILE_SIZE;
+
+        int[] next = chaserAI.nextMove(
+                map,
+                chaserGridX,
+                chaserGridY,
+                playerGridX,
+                playerGridY
+        );
+
+        targetX = next[0] * TILE_SIZE;
+        targetY = next[1] * TILE_SIZE;
+
+        chaserMoving = (targetX != enemyX || targetY != enemyY);
+        lastChaserMove = now;
+    }
     @Override
     public void actionPerformed(ActionEvent e) {
         int dx = 0, dy = 0;
