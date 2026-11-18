@@ -32,17 +32,21 @@ public class GameWindow extends JPanel implements ActionListener {
     private static final int SCREEN_WIDTH = 640;
     private static final int SCREEN_HEIGHT = 480;
 
-    private final int COLS = 20;
-    private final int ROWS = 20;
+    // CHANGED: size now comes from the generated maze (was fixed 20 x 20)
+    private final int COLS;
+    private final int ROWS;
 
-    private static final int PLAYER_SIZE = 42;
+    // CHANGED: was 42. Maze corridors are exactly one tile (40px) wide,
+    // so the player must be smaller than a tile or it can never move.
+    private static final int PLAYER_SIZE = 30;
 
-    //here 1 = wall , 0 = path (this is my Dummy matrix untill member 1 delivers the map generation script)
-    private int[][] map = new int[ROWS][COLS];
+    // CHANGED: map is now the maze from MazeGraph (1 = wall, 0 = path)
+    private final int[][] map;
+    private final long seed;
 
     // players co-odinat (Grid based)
-    private int playerX = TILE_SIZE + 4;
-    private int playerY = TILE_SIZE + 4;
+    private int playerX = TILE_SIZE + 5;   // CHANGED: centered in tile (1,1) for the 30px player
+    private int playerY = TILE_SIZE + 5;
     private int speed = 6;
 
     private boolean up, down, left, right;
@@ -79,14 +83,27 @@ public class GameWindow extends JPanel implements ActionListener {
     private final int chaserDelay = 300;
     // -------------- end of code for chaserAI --------------------
 
-    public GameWindow() {
+    // CHANGED: constructor receives the maze and its seed
+    public GameWindow(int[][] maze, long seed) {
+        this.map = maze;
+        this.ROWS = maze.length;
+        this.COLS = maze[0].length;
+        this.seed = seed;
+
+        // CHANGED: the old start tile (8,8) can be a wall in a generated maze.
+        // Open cells always sit on odd rows/columns, so (odd, odd) is always open.
+        enemyX = ((COLS / 2) | 1) * TILE_SIZE;
+        enemyY = ((ROWS / 2) | 1) * TILE_SIZE;
+        targetX = enemyX;
+        targetY = enemyY;
+
         this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
         this.setBackground(Color.BLACK);
         this.setDoubleBuffered(true);
 
         this.setFocusable(true); // capture keyboard inputs
 
-        generateDummyMatrix();
+        // generateDummyMatrix() removed - the maze replaces it
         setupKeyBindings();
 
         loadImages();
@@ -94,6 +111,11 @@ public class GameWindow extends JPanel implements ActionListener {
         //starting game loop the timer around 60 FPS (16ms)
         gameLoop = new Timer(16, this);
         gameLoop.start();
+    }
+
+    // ADDED: for pause / Continue / multiplayer
+    public long getSeed() {
+        return seed;
     }
 
     private void loadImages(){
@@ -114,21 +136,6 @@ public class GameWindow extends JPanel implements ActionListener {
             System.out.println("ERROR loading images");
             e.printStackTrace();
         }
-    }
-
-    private void generateDummyMatrix(){
-        for(int r = 0; r < ROWS; r++){
-            for(int c = 0; c < COLS; c++){
-                if (r == 0 || r == ROWS -1 || c == 0 || c == COLS -1) {
-                    map[r][c] = 1;
-                }else{
-                    map[r][c] = 0;
-                }
-            }
-        }
-        map[5][5] = 1;
-        map[5][6] = 1;
-        map[6][5] = 1;
     }
 
     private void setupKeyBindings(){
@@ -185,6 +192,14 @@ public class GameWindow extends JPanel implements ActionListener {
     }
 
     private boolean canMove(int nextX, int nextY){
+        // ADDED: the maze has openings on the left and right edges (entrance / exit),
+        // so keep the player inside the grid to avoid ArrayIndexOutOfBoundsException.
+        if (nextX < 0 || nextY < 0
+                || nextX + PLAYER_SIZE > COLS * TILE_SIZE
+                || nextY + PLAYER_SIZE > ROWS * TILE_SIZE) {
+            return false;
+        }
+
         int leftCol = nextX / TILE_SIZE;
         int rightCol = (nextX + PLAYER_SIZE - 1) / TILE_SIZE;
         int topRow = nextY / TILE_SIZE;

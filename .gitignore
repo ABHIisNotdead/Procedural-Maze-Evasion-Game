@@ -1,0 +1,10 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Compiled Java output
+out/
+*.class
+
+# Local runtime files
+run_history.csv
