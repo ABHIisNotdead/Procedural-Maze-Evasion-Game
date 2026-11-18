@@ -1,17 +1,8 @@
-import ui.GameWindow;
-import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import ui.MainFrame;
 
 public class Main {
-    public static void main(String[] arg) {
-        JFrame frame = new JFrame("Procedural maze Evasion");
-        GameWindow gameWindow = new GameWindow();
-
-        frame.add(gameWindow);
-        frame.pack();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(false);
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
-
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(MainFrame::new);
     }
 }
