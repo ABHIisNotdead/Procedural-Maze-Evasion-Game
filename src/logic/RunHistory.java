@@ -65,6 +65,24 @@ public class RunHistory {
         return list;
     }
 
+    /**
+     * Returns Top-K highest-scoring runs using a Max-Heap (PriorityQueue).
+     * Demonstrates Module 4/5 Heap Priority Queue sorting in O(N log N).
+     */
+    public static List<Record> loadTopRuns(int limit) {
+        List<Record> all = loadRuns();
+        java.util.PriorityQueue<Record> maxHeap = new java.util.PriorityQueue<>(
+                (a, b) -> Integer.compare(b.score, a.score)
+        );
+        maxHeap.addAll(all);
+
+        List<Record> top = new ArrayList<>();
+        while (!maxHeap.isEmpty() && top.size() < limit) {
+            top.add(maxHeap.poll());
+        }
+        return top;
+    }
+
     public static void clearHistory() {
         File file = new File(FILE_NAME);
         if (file.exists()) file.delete();

@@ -1,64 +1,148 @@
-# 🕹️ Procedural Maze Evasion Game (Java)
+# Procedural Maze Evasion Game: Cat & Dog Edition (ADS Project)
 
-A fully playable 2D arcade survival game built in pure Java. This project serves as our ADS (Advanced Data Structures) Mini-Project, demonstrating the practical application of Graphs, Trees, and Linear Data Structures through procedural environment generation and dynamic shortest-path AI routing.
-
-## 🎮 How the Game Works
-
-1. **The Environment:** A top-down, 2D maze constructed from textured sprites. The maze is **procedurally generated** from scratch every time the game starts, guaranteeing a unique layout for every playthrough.
-2. **The Objective:** Control the character using WASD or Arrow keys to navigate from the starting point to the designated exit portal on the opposite side of the maze.
-3. **The Threat:** An automated "Chaser" enemy spawns inside the maze. It constantly hunts the player using algorithmic pathfinding to calculate the absolute shortest route.
-4. **The Outcome:** Outmaneuver the Chaser and reach the exit! If the Chaser intercepts the player's coordinates, the game ends.
+A 2D procedural maze survival and evasion game built in pure **Java (Swing & AWT)** as an **Advanced Data Structures (ADS)** mini-project. It pairs hand-drawn storybook visuals and fast arcade evasion with live, inspectable implementations of Graph Theory, Minimum Spanning Trees, Shortest-Path Search, Stacks, Queues, Bounded Deques, Heaps, Spatial Hashing, and Finite State Machines.
 
 ---
 
-## ⚙️ Technical Architecture & ADS Implementation
+## Screenshots
 
-This game engine runs entirely on the data structures covered in our syllabus:
+| Main Menu | Live Maze Generation (`GENERATING` Phase) |
+| :---: | :---: |
+| ![Main Menu](docs/screenshots/menu.png) | ![Live Maze Generation](docs/screenshots/maze_gen.png) |
 
-*   **Graph Storage Structure (Adjacency Matrix):** The visual game board is mathematically backed by a 2D integer array to store coordinates of walls and open paths. *(Fulfills Module 6 / Practical 9)*
-*   **Minimum Spanning Tree (Maze Generation):** Utilizes Kruskal's or Prim's algorithm to compute an MST across the matrix, ensuring the maze is perfectly connected without infinite loops. *(Fulfills Module 6 / Practical 11)*
-*   **Graph Traversal (AI Pathfinding):** The Chaser enemy utilizes Breadth-First Search (BFS) to dynamically recalculate the shortest path to the player's coordinates on every background tick. *(Fulfills Module 6 / Practical 10 & Self-Learning Topic)*
-*   **Linear Data Structures (Queues):** A custom implementation of an Ordinary Queue is used to execute the BFS pathfinding level by level. *(Fulfills Module 3 / Practical 3)*
-*   **Java UI Integration:** Built using Java Swing. A `javax.swing.Timer` thread runs the game loop, allowing the AI to move independently of the `KeyListener` handling the player. Sprites are drawn using `Graphics2D`.
-
----
-
-## 👥 Task Delegation & Responsibilities
-
-### Member 1: Maze Generation Architecture (Backend Data Structures)
-*   **Target File:** `MazeGraph.java`
-*   **Task:** You are responsible for generating the layout of the maze. You must create a 2D integer array (Adjacency Matrix) to represent a 20x15 grid.
-*   **Algorithm Required:** Implement either Kruskal's algorithm or Prim's algorithm to carve the paths through the matrix, ensuring it is a perfect maze with no isolated rooms or closed loops.
-*   **Deliverable:** Send a `.java` class containing a method that returns a completed 2D array (e.g., `1` for walls, `0` for open paths).
-
-### Member 2: AI Pathfinding Engine (Backend Algorithms)
-*   **Target File:** `ChaserAI.java`
-*   **Task:** You are responsible for the enemy's brain. You must write an algorithm that calculates the absolute shortest path from the enemy's current coordinates to the player's current coordinates.
-*   **Algorithm Required:** Implement Breadth-First Search (BFS). You must use a standard Ordinary Queue to process the graph nodes level by level.
-*   **Deliverable:** Send a `.java` class with a method that accepts a 2D matrix, a start `(x, y)`, and a target `(x, y)`, and returns the coordinates of the single next tile the enemy should move to.
-
-### Member 3: Visuals & Academic Documentation (Frontend)
-*   **Target File:** `GameWindow.java` & `Project_Report.docx`
-*   **Task:** You are responsible for drawing the game on the screen and writing the final submission document. Use Java Swing (`JPanel` and `Graphics2D`) to write a script that reads a 20x15 2D array and draws colored squares (or `.png` images) on the screen.
-*   **Documentation Required:** Write the complete project report required for our continuous assessment. This includes documenting the time complexities of Kruskal's/Prim's and the BFS algorithms used by Members 1 and 2, drawing the flowcharts, and creating the final presentation slides.
-*   **Deliverable:** Send the Java Swing rendering class and the finalized Word document/PPT.
-
-### Member 4: Core Engine Integration & Game Loop
-*   **Target File:** `Main.java` & `GameLoop.java`
-*   **Task:** Lead Integrator. Once all the members send their individual `.java` files, I will wire the backend math (Member 1 & 2) to the frontend UI (Member 3).
-*   **Additional Logic:** I will write the `javax.swing.Timer` thread for the background game loop, implement the Keyboard Listeners for player movement, handle the collision detection logic so the player cannot walk through walls, and debug the final compiled application.
+| Gameplay (`2x2` Corridors, Multi-Color Dogs & Kittens) | Live ADS X-Ray Overlay (`[V]`) |
+| :---: | :---: |
+| ![Gameplay](docs/screenshots/gameplay.png) | ![ADS X-Ray](docs/screenshots/ads_xray.png) |
 
 ---
 
-## 🚀 Setup & Contribution Guide
+## How to Pull from Git & Run on PC
 
 ### Prerequisites
-*   [IntelliJ IDEA](https://www.jetbrains.com/idea/download/) installed.
-*   Java Development Kit (JDK) installed.
-*   Git installed on your system.
+* **Java Development Kit (JDK) 17 or higher** (`javac` and `java` available on `PATH`)
+* **Git**
 
-### How to Start
-1. **Clone the repository:** `git clone <repository_link_here>`
-2. **Open in IntelliJ:** Open IntelliJ IDEA -> `File` -> `Open` -> Select the cloned project folder.
-3. **Coding Sessions:** We will use Google Meet for live coding and debugging.
-4. **Pushing Code:** If you are stuck, push what you have so far, and we will integrate and fix it together on the Google Meet call!
+### 1. Clone or Pull from GitHub
+```bash
+git clone https://github.com/ABHIisNotdead/Procedural-Maze-Evasion-Game.git
+cd Procedural-Maze-Evasion-Game
+```
+To pull the latest updates on a specific branch:
+```bash
+git fetch origin
+git checkout feature/ads-swarm-redesign
+git pull origin feature/ads-swarm-redesign
+```
+
+### 2. Compile & Launch the Game
+**Windows (PowerShell / CMD):**
+```powershell
+mkdir out\production\Procedural-Maze-Evasion-Game -Force
+javac -encoding UTF-8 -d out/production/Procedural-Maze-Evasion-Game src/maze/*.java src/logic/*.java src/ui/*.java src/*.java
+java -cp out/production/Procedural-Maze-Evasion-Game Main
+```
+
+**macOS / Linux:**
+```bash
+mkdir -p out/production/Procedural-Maze-Evasion-Game
+javac -encoding UTF-8 -d out/production/Procedural-Maze-Evasion-Game src/maze/*.java src/logic/*.java src/ui/*.java src/*.java
+java -cp out/production/Procedural-Maze-Evasion-Game Main
+```
+
+### 3. Run the Automated ADS Verification Suite
+```bash
+javac -encoding UTF-8 -cp out/production/Procedural-Maze-Evasion-Game -d out/production/Procedural-Maze-Evasion-Game src/test/*.java
+java -cp out/production/Procedural-Maze-Evasion-Game test.MazeTestRunner
+```
+
+---
+
+## Controls & How to Play
+
+| Key | Action | Details |
+| :--- | :--- | :--- |
+| **`W A S D`** / **`Arrow Keys`** | Move Cat | Smooth pixel movement with corner-assist turning and wall-sliding |
+| **`SHIFT`** (Hold) | Sprint | Speed burst while moving; consumes and regenerates Cat stamina |
+| **`Q`** | **Hide (Invisible)** | Press on or next to a **Bush** or **Cracked Wall** to become invisible to all dogs; move or press `Q` again to exit |
+| **`SPACE`** | Drop Fish Treat / Skip Gen | Drops a collected Fish Treat to lure & stun dogs (`3.5s`); during maze generation, skips straight to play |
+| **`E`** | **Yarn Recall** | LIFO Stack ability: rewinds the Cat back along its recent path (`6s` cooldown) |
+| **`V`** | **ADS X-Ray Visualizer** | Toggles live overlay of BFS/A* paths, Scent Deque nodes, Yarn Stack, and `PREDICT` target |
+| **`M`** | Minimap | Toggles the corner radar minimap |
+| **`+` / `-`** | Generation Speed | Speeds up or slows down the live maze generation animation |
+| **`P` / `ESC`** | Pause / Menu | Freezes the pause-safe simulation clock; `ESC` on end screens returns to menu |
+| **`R`** | Restart Level | Resets the current level with the same seed |
+| **`N`** | Next Level | Advances to the next campaign level when cleared |
+
+---
+
+## Game Loop & Every Feature Explained
+
+### 1. Fixed-Timestep, Pause-Safe Game Loop (`GameWindow.java`)
+* **60 Hz Fixed-Timestep Accumulator (`FIXED_DT = 1/60s`):** Physics, stamina, scent decay, and AI movement run at a deterministic 60 updates per second regardless of monitor refresh rate.
+* **Pause-Safe Game Clock (`gameTimeMs`):** Buffs (`Catnip`), stuns, `Yarn Recall` cooldowns, and `DistractionItem` timers all read `gameTimeMs` instead of wall-clock `System.currentTimeMillis()`, so pausing freezes every timer cleanly.
+
+### 2. Four-Phase Level Progression
+1. **`GENERATING` (Optional Live Visualizer):** Watch the selected ADS algorithm carve the maze step-by-step with adjustable speed (`10–400 steps/s`) or `[SPACE]` to skip.
+2. **`RESCUE` (Portal Locked):** Stray Kittens spawn across the maze. Dogs also roam and try to `RETRIEVE` kittens back to their kennel (respawning them elsewhere if delivered, never soft-locking the level). Collect Fish Treats and rescue the required number of kittens to awaken the Exit Portal.
+3. **`ESCAPE` (Portal Awakened):** Once the kitten quota is met, the glowing Exit Portal unlocks and the Dog Swarm enters heightened alert/speed until you extract.
+4. **`CLEARED` / `DEFEATED`:** Displays your 1–3 Star rating, campaign score, time, and AI node telemetry. Advancing (`[N]`) carries over your **Campaign Score**, collected **Fish Treats**, and restores **+25 HP**.
+
+### 3. Three-Star Level Goals & Objective Compass
+* **Goal 1 (★):** Rescue the required kittens and escape through the unlocked Exit Portal.
+* **Goal 2 (★★):** Rescue **all** stray kittens on the map (`+200` bonus).
+* **Goal 3 (★★★):** Clear the level with **0 damage taken** under `75s` (`+200` bonus).
+* **Objective Compass:** A directional arrow orbits the Cat pointing toward the nearest kitten during `RESCUE`, and toward the Exit Portal during `ESCAPE`.
+
+### 4. Interactive Terrain & Hiding Mechanics
+* **Leafy Bushes (`bush.png`) & Biome Cracked Walls (`*_cracked_wall.png`):** Stand on or next to either hiding spot and press **`Q`** to tuck inside (`INVISIBLE [Q]`). While hidden, the Cat is rendered ghosted, nearby scent footprints are cleared, Swarm Comms lock is broken, and all dogs ignore and cannot damage you.
+* **Water Puddles:** Sparse weighted terrain (`weight = 2` / `3` for A*) that slows movement slightly unless boosted by Catnip.
+* **Cat Flaps (`CAT`):** Narrow wall shortcuts that only the Cat can pass through, forcing Dogs to route around loops.
+* **Collectibles:**
+  * **Coins (`+10`):** Scattered along corridors.
+  * **Fish Treats (`+25`):** Player starts with **0** treats and must pick them up in the maze before dropping them with `SPACE` to lure and stun dogs for `3.5s`.
+  * **Catnip (`+50`):** Grants `4.5s` of zoomies speed and lets you bonk/stun dogs on contact to knock stolen kittens loose.
+
+### 5. Difficulty Modes, Map Sizes & Biomes
+* **4 Difficulty Modes (`GameSettings.DifficultyMode`):**
+  * **Easy:** Cat speed `4`, Dog speed `3`, `180 ms` step delay, `-2` detection radius
+  * **Medium (Default):** Cat speed `4`, Dog speed `4`, `110 ms` step delay
+  * **Hard:** Cat speed `4`, Dog speed `5`, `55 ms` step delay, `+3` detection radius
+  * **Custom:** Independent sliders in Settings for **Cat Speed (`2–8`)** and **Dog Speed (`2–8`)**
+* **Map Size Modes (`MapSizePreset`) & `2x2` Corridors:**
+  * **Progressive (Auto-Grow):** Scales from `34x46` (Level 1) up to `66x94` (Level 5) and `78x110` (Endless).
+  * **Fixed Presets:** `Compact (26x38)`, `Standard (34x46)`, `Big (46x62)`, `Massive (58x82)`.
+  * **`2x2` Corridor Scaling:** Expands every corridor to 2 tiles wide (`80 px`) so the Cat and multi-chaser swarm can flank and maneuver without 1-tile bottlenecks.
+* **4 Illustrated Biomes:** `GARDEN`, `DUNGEON`, `TEMPLE`, and `CYBER`, each with custom wall/path/cracked-wall art, deterministic random tile rotations (`0°/90°/180°/270°`), and a continuously rotating Exit Portal.
+
+---
+
+## Advanced Data Structures (ADS) Architecture
+
+| ADS Topic / Structure | Where Implemented | Time / Space | Role in Game |
+| :--- | :--- | :--- | :--- |
+| **Sparse Adjacency List** | `MazeGraph.adjacencyList` | $O(V + E)$ space | Stores graph vertex/edge connectivity and random edge weights |
+| **Disjoint-Set (Union-Find)** | `MazeGraph.DisjointSet` | $O(\alpha(V))$ per op | Path Compression + Union by Rank for **Kruskal's MST** |
+| **Min-Heap (`PriorityQueue`)** | `MazeGraph.generatePrim`, `ChaserAI.findPathAStar` | $O(E \log V)$ | Pops minimum-weight frontier edge in Prim's MST and lowest $f(n)$ node in A\* |
+| **Explicit Stack (`ArrayDeque`)** | `MazeGraph.generateDFS`, `GameWindow.yarnStack` | $O(1)$ push/pop | LIFO backtracking in DFS maze carving and **`[E]` Yarn Recall** |
+| **Ordinary Queue (`ArrayDeque`)** | `ChaserAI.findPathBFS`, `MazeGraph.computeBFSDistances` | $O(V + E)$ | Unweighted shortest-path routing for **Vidhita's BFS Tracker** & spawn solver |
+| **Bounded Deque / Circular Queue** | `ScentTrail` | $O(1)$ amortized | Sliding-window footprint trail with monotonic timestamps for the **Greedy Scent Hound** |
+| **Greedy Optimization** | `ChaserAI` (`SCENT_HOUND`) | $O(1)$ per step | Selects freshest forward scent neighbor while consuming visited tiles to prevent oscillation |
+| **Finite State Machine (FSM)** | `ChaserState`, `ChaserEntity`, `ChaserAI` | $O(1)$ transitions | Switches dogs between `PATROLLING`, `HUNTING`, `RETRIEVING`, and `STUNNED` |
+| **Spatial Hash (`HashSet`)** | `ChaserAI.updateSwarm` (`reservedTiles`) | $O(1)$ lookup | Prevents multi-chaser stacking by reserving current and target grid tiles |
+| **Max-Heap (`PriorityQueue`)** | `RunHistory.loadTopRuns` | $O(N \log N)$ | Ranks top-10 highest-scoring runs on the leaderboard |
+
+### Multi-Chaser Swarm, Communication & Prediction (`ChaserAI.java`)
+* **Dog 1 — Vidhita's BFS Tracker (Slate-Blue Husky):** Computes the unweighted shortest path via Ordinary Queue BFS.
+* **Dog 2 — Greedy Scent Hound (Golden Amber):** Follows monotonically fresher timestamps in `ScentTrail`, consumes visited tiles to eliminate 2–3 tile loops, and flanks when alerted.
+* **Dog 3 — A\* Weighted Tactician (Crimson-Russet, Level 3+):** Uses Min-Heap A\* with terrain weights (`Puddle = 3`, `Normal = 1`) to intercept the Cat's predicted path.
+* **Swarm Blackboard Communication & Velocity Prediction:** When any dog detects the Cat, it broadcasts a `4.5s` Swarm Alert (`sharedAlertX, sharedAlertY`) and `predictPlayerLocation(...)` projects up to 4 open tiles ahead along the Cat's movement vector so interceptors cut off escape routes.
+
+---
+
+## How Each Map Generation Algorithm Works (`MazeGraph.java`)
+
+1. **Kruskal's MST (`KRUSKAL_MST`):** Builds all internal edges between grid cells with random weights, sorts them, and iterates in ascending order—carving a wall whenever `DisjointSet.union(u, v)` connects two previously disjoint trees.
+2. **Prim's MST (`PRIMS_MST`):** Starts from a random cell and pushes its frontier walls into a **Min-Heap (`PriorityQueue<Edge>`)**. Repeatedly pops the minimum-weight edge leading to an unvisited cell and grows the spanning tree outward.
+3. **Recursive Backtracker (`DFS_BACKTRACKER`):** Uses an explicit **Stack (`ArrayDeque<Integer>`)** to walk randomly into unvisited neighbors, carving deep winding corridors and popping back when hitting a dead end.
+4. **Cellular Automata (`CAVERN_CELLULAR`):** Seeds a connected Kruskal base, randomly opens 35% of internal walls, and applies a 4–5 neighbor smoothing rule to create organic cave chambers.
+5. **Braid Loop Injector & `2x2` Scaling:** After the spanning tree is built, `applyBraiding()` removes dead ends and injects cycles (`braidChance`), guaranteeing **multiple valid paths** to the goal. Finally, every base cell and wall expands into a `2x2` tile block for wide, tactical corridors.
