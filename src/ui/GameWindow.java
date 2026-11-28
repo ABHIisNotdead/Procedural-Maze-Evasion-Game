@@ -1613,12 +1613,21 @@ public class GameWindow extends JPanel implements ActionListener {
 
         // --- ROW 3 (Live Star Goals Bar) ---
         g2.setFont(new Font("Arial", Font.BOLD, 11));
-        String g1 = (kittensRescued >= requiredKittens ? "★ " : "☆ ") + "Goal1: Unlock Portal (" + kittensRescued + "/" + requiredKittens + ")";
-        String g2Txt = (kittensRescued >= totalKittens ? "★ " : "☆ ") + "Goal2: All Kittens (" + kittensRescued + "/" + totalKittens + ")";
-        String g3 = (!tookDamage && gameTimeMs <= 75000 ? "★ " : "☆ ") + "Goal3: No-Hit <75s (" + (gameTimeMs / 1000) + "s)";
-        drawOutlinedString(g2, g1, 18, 68, kittensRescued >= requiredKittens ? new Color(46, 204, 113) : new Color(220, 225, 235));
-        drawOutlinedString(g2, g2Txt, 240, 68, kittensRescued >= totalKittens ? new Color(241, 196, 15) : new Color(220, 225, 235));
-        drawOutlinedString(g2, g3, 455, 68, !tookDamage ? new Color(88, 214, 141) : new Color(231, 76, 60));
+        boolean goal1Done = kittensRescued >= requiredKittens;
+        boolean goal2Done = kittensRescued >= totalKittens;
+        boolean goal3Done = !tookDamage && gameTimeMs <= 75000;
+
+        drawStar(g2, 23, 64, 6, 3, goal1Done);
+        drawOutlinedString(g2, "Goal1: Unlock Portal (" + kittensRescued + "/" + requiredKittens + ")",
+                34, 68, goal1Done ? new Color(46, 204, 113) : new Color(220, 225, 235));
+
+        drawStar(g2, 245, 64, 6, 3, goal2Done);
+        drawOutlinedString(g2, "Goal2: All Kittens (" + kittensRescued + "/" + totalKittens + ")",
+                256, 68, goal2Done ? new Color(241, 196, 15) : new Color(220, 225, 235));
+
+        drawStar(g2, 460, 64, 6, 3, goal3Done);
+        drawOutlinedString(g2, "Goal3: No-Hit <75s (" + (gameTimeMs / 1000) + "s)",
+                471, 68, !tookDamage ? new Color(88, 214, 141) : new Color(231, 76, 60));
     }
 
     private void drawPauseOverlay(Graphics2D g2) {
@@ -1641,10 +1650,11 @@ public class GameWindow extends JPanel implements ActionListener {
         drawCenteredOutlinedString(g2, title, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 80, titleColor);
 
         if (win) {
-            StringBuilder stars = new StringBuilder();
-            for (int i = 0; i < 3; i++) stars.append(i < starsEarned ? "★ " : "☆ ");
-            g2.setFont(new Font("Arial", Font.BOLD, 30));
-            drawCenteredOutlinedString(g2, stars.toString().trim(), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 40, new Color(241, 196, 15));
+            int starSpacing = 44;
+            int startX = SCREEN_WIDTH / 2 - starSpacing;
+            for (int i = 0; i < 3; i++) {
+                drawStar(g2, startX + i * starSpacing, SCREEN_HEIGHT / 2 - 46, 16, 7, i < starsEarned);
+            }
         }
 
         g2.setFont(new Font("Arial", Font.BOLD, 16));
@@ -1657,7 +1667,7 @@ public class GameWindow extends JPanel implements ActionListener {
         if (win) {
             LevelManager.LevelData nextLvl = LevelManager.getLevel(currentLevel + 1);
             g2.setFont(new Font("Arial", Font.BOLD, 14));
-            drawCenteredOutlinedString(g2, "Next: LVL " + nextLvl.levelNumber + " - " + nextLvl.name + " (+1 Treat & +25 HP!)",
+            drawCenteredOutlinedString(g2, "Next: LVL " + nextLvl.levelNumber + " - " + nextLvl.name + " (+25 HP Heal!)",
                     SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 60, new Color(88, 214, 141));
             g2.setFont(new Font("Arial", Font.BOLD, 15));
             drawCenteredOutlinedString(g2, "Press N for Next Level  |  R to Replay  |  ESC for Menu",
@@ -1667,6 +1677,22 @@ public class GameWindow extends JPanel implements ActionListener {
             drawCenteredOutlinedString(g2, "Press R to Try Again  |  ESC for Menu",
                     SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 75, Color.LIGHT_GRAY);
         }
+    }
+
+    private void drawStar(Graphics2D g2, int cx, int cy, int outerR, int innerR, boolean filled) {
+        int[] xs = new int[10];
+        int[] ys = new int[10];
+        for (int i = 0; i < 10; i++) {
+            double angle = -Math.PI / 2.0 + i * (Math.PI / 5.0);
+            int r = (i % 2 == 0) ? outerR : innerR;
+            xs[i] = cx + (int) Math.round(Math.cos(angle) * r);
+            ys[i] = cy + (int) Math.round(Math.sin(angle) * r);
+        }
+        g2.setColor(filled ? new Color(241, 196, 15) : new Color(90, 98, 115));
+        g2.fillPolygon(xs, ys, 10);
+        g2.setColor(Color.BLACK);
+        g2.setStroke(new BasicStroke(1.5f));
+        g2.drawPolygon(xs, ys, 10);
     }
 
     private void drawOutlinedString(Graphics2D g2, String text, int x, int y, Color fillColor) {
