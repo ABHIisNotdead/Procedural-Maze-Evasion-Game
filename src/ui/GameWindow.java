@@ -14,6 +14,7 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -30,6 +31,8 @@ public class GameWindow extends JPanel implements ActionListener {
 
     private static final int SPRITE_WIDTH = 512;
     private static final int SPRITE_HEIGHT = 512;
+    private static final int ENEMY_SPRITE_WIDTH = 256;
+    private static final int ENEMY_SPRITE_HEIGHT = 256;
 
     private static final int TILE_SIZE = 40;
     private static final int SCREEN_WIDTH = 640;
@@ -78,6 +81,16 @@ public class GameWindow extends JPanel implements ActionListener {
     private BufferedImage[] walkUp = new BufferedImage[4];
     private BufferedImage[] walkRight = new BufferedImage[4];
     private BufferedImage[] walkLeft = new BufferedImage[4];
+
+    // Enemy animation variables
+    private String enemyDirection = "down";
+    private int enemySpriteCounter = 0;
+    private int enemySpriteNum = 0;
+    private BufferedImage enemySheet;
+    private BufferedImage[] enemyDown = new BufferedImage[4];
+    private BufferedImage[] enemyUp = new BufferedImage[4];
+    private BufferedImage[] enemyRight = new BufferedImage[4];
+    private BufferedImage[] enemyLeft = new BufferedImage[4];
 
     // Wall and path images
     private Image wallSprite;
@@ -144,6 +157,9 @@ public class GameWindow extends JPanel implements ActionListener {
         targetX = enemyX;
         targetY = enemyY;
         chaserMoving = false;
+        enemyDirection = "down";
+        enemySpriteCounter = 0;
+        enemySpriteNum = 0;
 
         camX = playerX + (PLAYER_SIZE / 2.0) - (SCREEN_WIDTH / 2.0);
         camY = playerY + (PLAYER_SIZE / 2.0) - (SCREEN_HEIGHT / 2.0);
@@ -177,11 +193,21 @@ public class GameWindow extends JPanel implements ActionListener {
         return seed;
     }
 
+    private BufferedImage loadImage(String path) throws IOException {
+        try (InputStream is = GameWindow.class.getResourceAsStream("/" + path)) {
+            if (is != null) {
+                return ImageIO.read(is);
+            }
+        }
+        return ImageIO.read(new File(path));
+    }
+
     private void loadImages() {
         try {
-            wallSprite = ImageIO.read(new File("assets/wall.png"));
-            pathSprite = ImageIO.read(new File("assets/path.png"));
-            playerSheet = ImageIO.read(new File("assets/player_sheet.png"));
+            wallSprite = loadImage("assets/wall.png");
+            pathSprite = loadImage("assets/path.png");
+            playerSheet = loadImage("assets/player_sheet.png");
+            enemySheet = loadImage("assets/enemy_sheet.png");
 
             for (int i = 0; i < 4; i++) {
                 int startX = i * SPRITE_WIDTH;
@@ -189,6 +215,12 @@ public class GameWindow extends JPanel implements ActionListener {
                 walkDown[i] = playerSheet.getSubimage(startX, 1 * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT);
                 walkLeft[i] = playerSheet.getSubimage(startX, 2 * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT);
                 walkRight[i] = playerSheet.getSubimage(startX, 3 * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT);
+
+                int enemyStartX = i * ENEMY_SPRITE_WIDTH;
+                enemyUp[i] = enemySheet.getSubimage(enemyStartX, 0, ENEMY_SPRITE_WIDTH, ENEMY_SPRITE_HEIGHT);
+                enemyDown[i] = enemySheet.getSubimage(enemyStartX, 1 * ENEMY_SPRITE_HEIGHT, ENEMY_SPRITE_WIDTH, ENEMY_SPRITE_HEIGHT);
+                enemyLeft[i] = enemySheet.getSubimage(enemyStartX, 2 * ENEMY_SPRITE_HEIGHT, ENEMY_SPRITE_WIDTH, ENEMY_SPRITE_HEIGHT);
+                enemyRight[i] = enemySheet.getSubimage(enemyStartX, 3 * ENEMY_SPRITE_HEIGHT, ENEMY_SPRITE_WIDTH, ENEMY_SPRITE_HEIGHT);
             }
         } catch (IOException e) {
             System.out.println("ERROR loading images");
@@ -389,18 +421,29 @@ public class GameWindow extends JPanel implements ActionListener {
         if (chaserMoving) {
             if (enemyX < targetX) {
                 enemyX = Math.min(enemyX + chaserSpeed, targetX);
+                enemyDirection = "right";
             } else if (enemyX > targetX) {
                 enemyX = Math.max(enemyX - chaserSpeed, targetX);
+                enemyDirection = "left";
             }
 
             if (enemyY < targetY) {
                 enemyY = Math.min(enemyY + chaserSpeed, targetY);
+                enemyDirection = "down";
             } else if (enemyY > targetY) {
                 enemyY = Math.max(enemyY - chaserSpeed, targetY);
+                enemyDirection = "up";
+            }
+
+            enemySpriteCounter++;
+            if (enemySpriteCounter > 8) {
+                enemySpriteNum = (enemySpriteNum + 1) % 4;
+                enemySpriteCounter = 0;
             }
 
             if (enemyX == targetX && enemyY == targetY) {
                 chaserMoving = false;
+                enemySpriteNum = 0;
             }
 
             return;
@@ -566,9 +609,21 @@ public class GameWindow extends JPanel implements ActionListener {
             }
         }
 
-        // Draw Enemy (Placeholder)
-        g2.setColor(Color.RED);
-        g2.fillRect(enemyX, enemyY, PLAYER_SIZE, PLAYER_SIZE);
+        // Draw Enemy
+        BufferedImage enemyFrame = null;
+        switch (enemyDirection) {
+            case "up": enemyFrame = enemyUp[enemySpriteNum]; break;
+            case "down": enemyFrame = enemyDown[enemySpriteNum]; break;
+            case "left": enemyFrame = enemyLeft[enemySpriteNum]; break;
+            case "right": enemyFrame = enemyRight[enemySpriteNum]; break;
+        }
+
+        if (enemyFrame != null) {
+            g2.drawImage(enemyFrame, enemyX, enemyY, TILE_SIZE, TILE_SIZE, null);
+        } else {
+            g2.setColor(Color.RED);
+            g2.fillRect(enemyX, enemyY, PLAYER_SIZE, PLAYER_SIZE);
+        }
 
         // Draw Player (blinks while invincible after taking damage)
         boolean isInvincible = System.currentTimeMillis() < invincibleUntil;
