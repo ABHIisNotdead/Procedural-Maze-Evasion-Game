@@ -383,9 +383,8 @@ public class GameWindow extends JPanel implements ActionListener {
 
     private void loadSpriteSheets() {
         try {
-            File catFile = new File("assets/player_sheet.png");
-            if (catFile.exists()) {
-                playerSheet = ImageIO.read(catFile);
+            playerSheet = ThemeManager.loadImageSafe("assets/player_sheet.png");
+            if (playerSheet != null && playerSheet.getWidth() >= SPRITE_WIDTH * 4 && playerSheet.getHeight() >= SPRITE_HEIGHT * 4) {
                 for (int i = 0; i < 4; i++) {
                     int sx = i * SPRITE_WIDTH;
                     catWalkUp[i] = playerSheet.getSubimage(sx, 0, SPRITE_WIDTH, SPRITE_HEIGHT);
@@ -395,9 +394,8 @@ public class GameWindow extends JPanel implements ActionListener {
                 }
             }
 
-            File dogFile = new File("assets/dog_sheet.png");
-            if (dogFile.exists()) {
-                dogSheet = ImageIO.read(dogFile);
+            dogSheet = ThemeManager.loadImageSafe("assets/dog_sheet.png");
+            if (dogSheet != null && dogSheet.getWidth() >= 64 && dogSheet.getHeight() >= 64) {
                 int dogFrameW = dogSheet.getWidth() / 4;
                 int dogFrameH = dogSheet.getHeight() / 4;
                 for (int dir = 0; dir < 4; dir++) {
@@ -409,7 +407,7 @@ public class GameWindow extends JPanel implements ActionListener {
                     }
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println("Warning loading character sprites: " + e.getMessage());
         }
     }

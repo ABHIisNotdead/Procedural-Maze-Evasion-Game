@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import javax.imageio.ImageIO;
@@ -94,11 +95,23 @@ public class ThemeManager {
         }
     }
 
-    private static Image loadImageSafe(String path) {
+    /**
+     * Loads an image from classpath resources inside a JAR first, falling back to local filesystem.
+     */
+    public static BufferedImage loadImageSafe(String path) {
+        String resourcePath = path.startsWith("/") ? path : "/" + path;
+        try (InputStream is = ThemeManager.class.getResourceAsStream(resourcePath)) {
+            if (is != null) {
+                BufferedImage img = ImageIO.read(is);
+                if (img != null) return img;
+            }
+        } catch (IOException ignored) {}
+
         try {
             File f = new File(path);
             if (f.exists()) {
-                return ImageIO.read(f);
+                BufferedImage img = ImageIO.read(f);
+                if (img != null) return img;
             }
         } catch (IOException ignored) {}
 
